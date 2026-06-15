@@ -8,6 +8,7 @@ import {
   createRoute,
   Outlet,
   redirect,
+  useNavigate,
 } from '@tanstack/react-router'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/store/authStore'
@@ -41,6 +42,13 @@ function AppInit({ children }: { children: React.ReactNode }) {
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate({ to: '/login' })
+    }
+  }, [isLoading, isAuthenticated, navigate])
 
   if (isLoading) {
     return (
@@ -50,9 +58,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!isAuthenticated) {
-    throw redirect({ to: '/login' })
-  }
+  if (!isAuthenticated) return null
 
   return <>{children}</>
 }
